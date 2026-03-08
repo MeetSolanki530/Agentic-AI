@@ -1,0 +1,37 @@
+code = '''
+def find_substrings_with_k_distinct(s, k):
+    """
+    Find all substrings of a given string that contain exactly k distinct characters.
+    
+    Args:
+        s (str): Input string
+        k (int): Number of distinct characters required
+    
+    Returns:
+        list: List of substrings with exactly k distinct characters
+    """
+    result = []
+    n = len(s)
+    
+    # Generate all possible substrings
+    for i in range(n):
+        for j in range(i + 1, n + 1):
+            substring = s[i:j]
+            # Count distinct characters in the substring
+            distinct_chars = set(substring)
+            if len(distinct_chars) == k:
+                result.append(substring)
+    
+    return result
+
+# Test with the example
+s = "abcbaa"
+k = 2
+output = find_substrings_with_k_distinct(s, k)
+print(f"Input: s = '{s}', k = {k}")
+print(f"Output: {output}")
+'''
+
+with open('solution.py', 'w') as f:
+    f.write(code)
+print("file saved")

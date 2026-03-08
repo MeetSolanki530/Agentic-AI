@@ -1,0 +1,44 @@
+def longestSubsequenceWithDiffK(nums, k):
+    # Dictionary to store the length of longest subsequence ending with value v
+    dp = {}
+    max_length = 1
+    
+    # Process each number in the array
+    for num in nums:
+        # Check if num - k exists in our map
+        if num - k in dp:
+            # We can extend the subsequence ending at num - k
+            dp[num] = dp[num - k] + 1
+        else:
+            # Start a new subsequence with this number
+            dp[num] = 1
+        
+        # Update maximum length
+        max_length = max(max_length, dp[num])
+    
+    return max_length
+
+# Test with the given example
+nums = [1, 5, 7, 8, 5, 3, 4, 2, 1]
+k = 2
+
+result = longestSubsequenceWithDiffK(nums, k)
+print(f"Input array: {nums}")
+print(f"Target difference: {k}")
+print(f"Length of longest subsequence with difference {k}: {result}")
+
+# Let's trace through the example to show how it works
+print("\nTracing through the example:")
+dp = {}
+max_length = 1
+print(f"Initial state: dp = {dp}, max_length = {max_length}")
+
+for i, num in enumerate(nums):
+    if num - k in dp:
+        dp[num] = dp[num - k] + 1
+    else:
+        dp[num] = 1
+    max_length = max(max_length, dp[num])
+    print(f"Step {i+1}: nums[{i}] = {num}, dp = {dp}, max_length = {max_length}")
+
+print(f"\nThe longest subsequence would be of length: {max_length}")

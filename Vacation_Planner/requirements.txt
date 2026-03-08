@@ -1,0 +1,8 @@
+autogen-agentchat
+autogen-core
+autogen-ext[openai]
+dotenv
+openai
+tiktoken
+asyncio
+pytest

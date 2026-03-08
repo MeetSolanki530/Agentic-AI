@@ -1,0 +1,50 @@
+def longestSubsequenceWithDiffK(nums, k):
+    # Dictionary to store the length of longest subsequence ending with value v
+    dp = {}
+    
+    # Process each number in the array
+    for num in nums:
+        # Check if num - k exists in our map
+        if num - k in dp:
+            # We can extend the subsequence ending at num - k
+            dp[num] = max(dp.get(num, 1), dp[num - k] + 1)
+        else:
+            # Start a new subsequence with this number
+            dp[num] = max(dp.get(num, 1), 1)
+    
+    # Return the maximum length found
+    return max(dp.values()) if dp else 0
+
+# Test with the given example
+nums = [1, 5, 7, 8, 5, 3, 4, 2, 1]
+k = 2
+
+print("Let's check the complete array and trace it properly:")
+print(f"Array: {nums}")
+for i, num in enumerate(nums):
+    print(f"Index {i}: {num}")
+
+print("\nLet's manually check for subsequences with difference k=2:")
+print("We want to find sequences where consecutive picked elements differ by exactly 2")
+
+# Check in detail the subsequence [7, 5, 3, 1]
+print("\nChecking subsequence [7, 5, 3, 1]:")
+print("- 7 is at index 2")
+print("- 5 is at index 4 (7-2=5)")
+print("- 3 is at index 5 (5-2=3)")
+print("- 1 is at index 8 (1-2=-1, but 3-2=1)")
+
+# Let's run our algorithm with debugging
+result = longestSubsequenceWithDiffK(nums, k)
+print(f"\nAlgorithm result: {result}")
+
+# But there seems to be a mismatch with expected. Let me find all possible values:
+dp = {}
+for i, num in enumerate(nums):
+    if num - k in dp:
+        dp[num] = max(dp.get(num, 1), dp[num - k] + 1)
+    else:
+        dp[num] = max(dp.get(num, 1), 1)
+    print(f"After processing index {i} (value {num}): dp = {dp}")
+
+print(f"\nMaximum length from dp: {max(dp.values())}")

@@ -1,0 +1,23 @@
+code = '''
+def add_two_numbers(num1, num2):
+  """
+  This function takes two numbers as input and returns their sum.
+  """
+  return num1 + num2
+
+# Example usage:
+if __name__ == "__main__":
+    number1 = 5
+    number2 = 10
+    sum_result = add_two_numbers(number1, number2)
+    print(f"The sum of {number1} and {number2} is: {sum_result}")
+
+    number3 = -3
+    number4 = 7
+    sum_result_2 = add_two_numbers(number3, number4)
+    print(f"The sum of {number3} and {number4} is: {sum_result_2}")
+'''
+
+with open('solution.py', 'w') as f:
+    f.write(code)
+print("file saved")

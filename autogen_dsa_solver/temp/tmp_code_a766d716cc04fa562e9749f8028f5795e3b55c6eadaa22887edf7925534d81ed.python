@@ -1,0 +1,101 @@
+code = '''
+import collections
+
+class Solution:
+    def longestDupSubstring(self, S: str) -> str:
+        n = len(S)
+
+        # Convert characters to integers (0-25) for easier hash calculation
+        # 'a' -> 0, 'b' -> 1, ..., 'z' -> 25
+        nums = [ord(c) - ord('a') for c in S]
+
+        # Choose a base and a modulus for the rolling hash
+        # Base: A prime number greater than the number of unique characters (26 for lowercase English letters).
+        # Modulus: A large prime number to reduce hash collisions.
+        base = 31  # A common choice for lowercase letters
+        MOD = 1_000_000_007 # A large prime number (10^9 + 7)
+
+        # Helper function to check if a duplicate substring of a given length L exists
+        # Returns (True, starting_index_of_duplicate) if found, else (False, -1).
+        # The starting_index_of_duplicate refers to the starting index of the *second* occurrence found.
+        def check(L: int) -> tuple[bool, int]:
+            # If the length is 0, it's technically a duplicate (empty string), but we are looking for non-empty.
+            # The binary search `low` starts from 1, so L will be at least 1.
+            if L == 0:
+                return True, 0 
+
+            # Precompute (base^(L-1)) % MOD.
+            # This value is used to subtract the contribution of the character leaving the window.
+            # For example, to remove S[i-1] from hash(S[i-1...i+L-2]), we subtract (S[i-1] * base^(L-1)) % MOD.
+            h_power = pow(base, L - 1, MOD)
+
+            # Calculate the hash of the first substring of length L (S[0...L-1])
+            current_hash = 0
+            for i in range(L):
+                current_hash = (current_hash * base + nums[i]) % MOD
+            
+            # Store hashes and their corresponding starting indices.
+            # If a hash is already in this dictionary, it means we found a potential duplicate.
+            seen_hashes = {current_hash: 0} 
+
+            # Iterate through the rest of the string to calculate rolling hashes
+            # The window slides from S[i...i+L-1] where i goes from 1 to n-L.
+            for i in range(1, n - L + 1):
+                # Rolling hash update:
+                # 1. Remove the contribution of the character leaving the window (nums[i-1]).
+                #    We need to ensure the result remains positive by adding MOD before the final modulo.
+                current_hash = (current_hash - (nums[i-1] * h_power) % MOD + MOD) % MOD
+                
+                # 2. Shift the remaining hash by multiplying by the base.
+                current_hash = (current_hash * base) % MOD
+                
+                # 3. Add the contribution of the new character entering the window (nums[i+L-1]).
+                current_hash = (current_hash + nums[i+L-1]) % MOD
+
+                # If the current_hash is already in seen_hashes, we've found a duplicate.
+                if current_hash in seen_hashes:
+                    # Return True and the starting index 'i' of this duplicate.
+                    # This 'i' corresponds to the start of the *current* window S[i...i+L-1].
+                    # The other occurrence would be at seen_hashes[current_hash].
+                    return True, i
+                
+                # If not seen, add the current hash and its starting index to the dictionary.
+                seen_hashes[current_hash] = i
+            
+            # If the loop finishes, no duplicate of length L was found.
+            return False, -1 
+
+        # Binary search for the maximum possible length of a duplicate substring.
+        # The length can range from 1 to n-1.
+        low, high = 1, n - 1 
+        ans_len = 0          # Stores the length of the longest duplicate substring found so far.
+        ans_start_idx = -1   # Stores the starting index of that longest duplicate substring.
+
+        while low <= high:
+            mid = low + (high - low) // 2 # Calculate the middle length to check
+            found, start_idx = check(mid) # Call the helper function
+
+            if found:
+                # If a duplicate of length 'mid' is found, it means we might be able to find a longer one.
+                # So, we store 'mid' as a potential answer and try to search in the upper half.
+                ans_len = mid
+                ans_start_idx = start_idx
+                low = mid + 1
+            else:
+                # If no duplicate of length 'mid' is found, it means longer substrings also won't have duplicates.
+                # So, we need to search in the lower half for shorter substrings.
+                high = mid - 1
+        
+        # After the binary search, if ans_len is greater than 0, we found a duplicate.
+        # Construct and return the substring using the stored starting index and length.
+        if ans_len > 0:
+            return S[ans_start_idx : ans_start_idx + ans_len]
+        else:
+            # If ans_len is 0, no duplicate substring was found (or only empty string).
+            # The problem asks for an empty string if no such substring exists.
+            return ""
+'''
+
+with open('solution.py','w') as f:
+    f.write(code)
+print("file saved")

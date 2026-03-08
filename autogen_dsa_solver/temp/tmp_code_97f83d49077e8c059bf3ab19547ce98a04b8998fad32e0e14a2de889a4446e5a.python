@@ -1,0 +1,100 @@
+def longest_duplicate_substring(S):
+    # Build a suffix tree using a dictionary to store the suffix links
+    class Node:
+        def __init__(self, suffix_link):
+            self.children = {}
+            self.suffix_link = suffix_link
+            self.count = 0
+
+    # Initialize the root node
+    root = Node(None)
+
+    # Function to traverse the tree and update counts
+    def update_counts(node):
+        if node is not None:
+            node.count += 1
+            for child in node.children.values():
+                update_counts(child)
+
+    # Function to perform the Ukkonen's algorithm for suffix tree construction
+    def build_tree(S):
+        current = root
+        for i in range(len(S)):
+            # Create a new node for the current character
+            current_char = S[i]
+            new_node = Node(current)
+            new_node.count = 1
+            current.children[current_char] = new_node
+            # Traverse the suffix tree to update suffix links
+            while True:
+                # Find the suffix link of the current node
+                suffix_link = current.suffix_link
+                # Check if the current node is the same as the suffix link's child
+                if current_char in suffix_link.children:
+                    # If so, update the current node's suffix link to the child
+                    current = suffix_link.children[current_char]
+                    break
+                # If not, create a new node for the suffix link
+                elif suffix_link is None or suffix_link.children.get(current_char, None) is None:
+                    # Create a new node
+                    new_suffix_link_node = Node(suffix_link)
+                    new_suffix_link_node.count = 0
+                    current.suffix_link = new_suffix_link_node
+                    # Update the suffix link of the new node
+                    new_suffix_link_node.children[current_char] = new_node
+                    break
+                else:
+                    # If the suffix link's child has the current character, update the current node's suffix link
+                    current = suffix_link.children[current_char]
+                    continue
+        # Update the counts for all nodes
+        update_counts(root)
+        return root
+
+    # Function to traverse the tree and find the longest repeated substring
+    def find_longest_repeated_substring(root):
+        max_len = 0
+        max_node = None
+        for node in root.children.values():
+            update_counts(node)
+            # Check if the current node has two or more occurrences
+            if node.count >= 2:
+                # Update the maximum length and node if necessary
+                if node.count >= 2 and node.count > max_len:
+                    max_len = node.count
+                    max_node = node
+            # Traverse the suffix links to check for deeper nodes with two or more occurrences
+            current_node = node.suffix_link
+            while current_node is not None:
+                if current_node.count >= 2:
+                    if node.count > max_len:
+                        max_len = node.count
+                        max_node = node
+                current_node = current_node.suffix_link
+        # Traverse the suffix links of the longest repeated substring node to find the substring
+        current_node = max_node
+        while current_node is not None:
+            # Check if the current node has two or more occurrences
+            if current_node.count >= 2:
+                # Traverse the suffix link tree to find the substring
+                substring = ""
+                parent_node = current_node
+                while True:
+                    # Check if the current node has children
+                    if parent_node.children:
+                        # Add the character to the substring
+                        substring += parent_node.children[parent_node.children.keys()[0]][0]
+                        # Move to the child node
+                        parent_node = parent_node.children[parent_node.children.keys()[0]]
+                    else:
+                        # If no children, stop the traversal
+                        break
+                return substring
+            current_node = current_node.suffix_link
+
+    # Build the suffix tree and find the longest repeated substring
+    root = build_tree(S)
+    return find_longest_repeated_substring(root)
+
+# Example usage
+print(longest_duplicate_substring("banana"))  # Output: "ana"

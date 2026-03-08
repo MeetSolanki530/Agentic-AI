@@ -1,0 +1,88 @@
+def longestSubsequenceWithDiffK(nums, k):
+    # Dictionary to store the length of longest subsequence ending with value v
+    dp = {}
+    max_length = 1
+    
+    # Process each number in the array
+    for num in nums:
+        # For difference k, previous element in subsequence could be num-k
+        prev = num - k
+        if prev in dp:
+            # We can extend the subsequence ending at prev
+            dp[num] = dp[prev] + 1
+        else:
+            # Start a new subsequence with this number
+            dp[num] = 1
+        max_length = max(max_length, dp[num])
+    
+    return max_length
+
+# Test with the given example  
+nums = [1, 5, 7, 8, 5, 3, 4, 2, 1]
+k = 2
+
+result = longestSubsequenceWithDiffK(nums, k)
+print(f"Result: {result}")
+
+# Manual verification of expected subsequence [7, 5, 3, 1]:
+# We process elements in this order: 1(0), 5(1), 7(2), 8(3), 5(4), 3(5), 4(6), 2(7), 1(8)
+# dp initially empty
+# 1(0): prev = 1-2 = -1, not in dp, so dp[1] = 1
+# 5(1): prev = 5-2 = 3, not in dp, so dp[5] = 1  
+# 7(2): prev = 7-2 = 5, not in dp yet with key 5 having value, so dp[7] = 1
+# 8(3): prev = 8-2 = 6, not in dp, so dp[8] = 1
+# 5(4): prev = 5-2 = 3, not in dp, so dp[5] = 1 (overwrites!)
+# 3(5): prev = 3-2 = 1, 1 in dp with value 1, so dp[3] = dp[1] + 1 = 2
+# 4(6): prev = 4-2 = 2, not in dp, so dp[4] = 1
+# 2(7): prev = 2-2 = 0, not in dp, so dp[2] = 1
+# 1(8): prev = 1-2 = -1, not in dp, so dp[1] = 1 (overwrites!)
+
+print("\nDetailed trace to find longest subsequence:")
+dp = {}
+max_length = 1
+
+for i, num in enumerate(nums):
+    prev = num - k
+    if prev in dp:
+        dp[num] = dp[prev] + 1
+        print(f"Index {i}: {num}, extended from {prev}, length = {dp[num]}")
+    else:
+        dp[num] = 1
+        print(f"Index {i}: {num}, started new sequence, length = {dp[num]}")
+    max_length = max(max_length, dp[num])
+    print(f"  dp = {dp}")
+    print(f"  max_length = {max_length}")
+
+print(f"\nMaximum length found: {max_length}")
+
+# Looking at dp values:
+# At some point, we should have a path that gets to length 4
+# Let's check if we can find it
+print("\nAnalyzing how we could get length 4:")
+# For subsequence [7,5,3,1] with differences of 2:
+# 7 should have a predecessor of 9 that isn't there
+# 5 should have a predecessor of 7 that has length 1 (initially)
+# 3 should have a predecessor of 5 that has length 1, so length becomes 2
+# 1 should have a predecessor of 3 that has length 2, so length becomes 3
+
+# But the problem says the answer should be 4, not 3, so I must be missing something
+print("The problem example shows [7, 5, 3, 1] should have length 4")
+print("So 1 must be preceded by something that has length 3")
+
+# Actually, let me trace the example subsequence logic correctly:
+# 1. First 7 (index 2): no 5 previously encountered, so starting fresh: length 1
+# 2. First 5 (index 1): no 3 previously encountered, so starting fresh: length 1
+# 3. But when we encounter 7 (index 2): 5 was previously encountered with length 1, so 7 gets length 2
+# The issue is - when 5 is encountered at index 1, the previous element that would lead to it is 7
+# But when 5 at index 4 is encountered, it should extend the sequence 7->5
+# But no 7 was previously encountered when we first do i=1 which is 5
+
+# I think I understand the issue. We're not getting the expected sequence because I think there's something wrong with the problem example or my understanding of it.
+
+print("\nLet me consider a different example where I know the answer:")
+test_nums = [1, 3, 5, 7]
+test_k = 2
+test_result = longestSubsequenceWithDiffK(test_nums, test_k)
+print(f"For array {test_nums} with k={test_k}")
+print(f"Expected longest subsequence [1,3,5,7] with length 4")
+print(f"Got result: {test_result}")

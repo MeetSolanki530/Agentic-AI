@@ -1,0 +1,64 @@
+def longestSubsequenceWithDiffK(nums, k):
+    # Dictionary to store the length of longest subsequence ending with value v
+    dp = {}
+    
+    # Process each number in the array
+    for num in nums:
+        # Check if num - k exists in our map
+        if num - k in dp:
+            # We can extend the subsequence ending at num - k
+            # Take the maximum of existing length and new length
+            dp[num] = max(dp.get(num, 1), dp[num - k] + 1)
+        else:
+            # Start or maintain subsequence with this number
+            dp[num] = max(dp.get(num, 1), 1)
+    
+    # Return the maximum length found
+    return max(dp.values()) if dp else 0
+
+# Test with the given example
+nums = [1, 5, 7, 8, 5, 3, 4, 2, 1]
+k = 2
+
+result = longestSubsequenceWithDiffK(nums, k)
+print(f"Input array: {nums}")
+print(f"Target difference: {k}")
+print(f"Length of longest subsequence with difference {k}: {result}")
+
+# Let's trace through the example again to show how it works
+print("\nTracing through the example:")
+dp = {}
+print(f"Initial state: dp = {dp}")
+
+for i, num in enumerate(nums):
+    if num - k in dp:
+        dp[num] = max(dp.get(num, 1), dp[num - k] + 1)
+    else:
+        dp[num] = max(dp.get(num, 1), 1)
+    print(f"Step {i+1}: nums[{i}] = {num}, dp = {dp}")
+
+# Find the actual subsequence to verify
+print(f"\nMaximum length found: {max(dp.values()) if dp else 0}")
+
+# Let's also try to reconstruct one of the longest subsequences
+print("\nReconstructing one possible longest subsequence:")
+# Find the maximum length
+max_len = max(dp.values())
+# Find a value that ends a subsequence of maximum length
+end_val = None
+for val, length in dp.items():
+    if length == max_len:
+        end_val = val
+        break
+
+# Reconstruct the subsequence
+if end_val is not None:
+    subsequence = []
+    current = end_val
+    while current in dp and dp[current] > 0:
+        subsequence.append(current)
+        if dp[current] == 1:
+            break
+        current = current - k
+    subsequence.reverse()
+    print(f"One possible longest subsequence: {subsequence}")

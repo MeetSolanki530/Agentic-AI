@@ -1,0 +1,74 @@
+def longestSubsequenceWithDiffK(nums, k):
+    # Dictionary to store the length of longest subsequence ending with value v
+    dp = {}
+    
+    # Process each number in the array
+    for num in nums:
+        # For an arithmetic progression with difference k,
+        # previous element would be num - k
+        prev = num - k
+        if prev in dp:
+            # We can extend the subsequence ending at prev
+            dp[num] = dp[prev] + 1
+        else:
+            # Start a new subsequence with this number
+            dp[num] = 1
+    
+    # Return the maximum length found
+    return max(dp.values()) if dp else 0
+
+# Let's trace the correct subsequence [7, 5, 3, 1]
+nums = [1, 5, 7, 8, 5, 3, 4, 2, 1]
+k = 2
+
+print("Tracing the algorithm correctly:")
+dp = {}
+print(f"Initial: dp = {dp}")
+
+for i, num in enumerate(nums):
+    prev = num - k
+    if prev in dp:
+        dp[num] = dp[prev] + 1
+        print(f"Index {i}: num={num}, prev={prev} found in dp, extending to length {dp[num]}")
+    else:
+        dp[num] = 1
+        print(f"Index {i}: num={num}, prev={prev} NOT found in dp, starting new sequence of length {dp[num]}")
+    print(f"  dp = {dp}")
+
+print(f"\nMaximum length: {max(dp.values())}")
+
+# Let me show the actual reconstruction to validate
+print("\nReconstructing actual subsequence:")
+max_len = max(dp.values())
+# Find a number that ends a subsequence of max_len length
+end_num = None
+for num, length in dp.items():
+    if length == max_len:
+        end_num = num
+        break
+
+if end_num is not None:
+    subsequence = []
+    current = end_num
+    length = dp[current]
+    
+    # Add the ending element
+    subsequence.append(current)
+    
+    # Work backwards to reconstruct the subsequence
+    while length > 1:
+        prev = current - k
+        if prev in dp and dp[prev] == length - 1:
+            subsequence.append(prev)
+            current = prev
+            length = dp[prev]
+        else:
+            break
+    
+    subsequence.reverse()
+    print(f"Reconstructed subsequence: {subsequence}")
+    print(f"Length: {len(subsequence)}")
+
+# It seems like we should get 4, let me check why it's still 2
+print("\nAnalyzing the process more carefully for the expected subsequence:")
+print("Expected subsequence [7, 5, 3, 1] should have length 4")

@@ -1,0 +1,16 @@
+def longest_duplicate_substring(s):
+    n = len(s)
+    longest_dup = ""
+
+    for length in range(n):
+        seen = {}
+        for i in range(n - length):
+            substring = s[i:i + length]
+            if substring in seen:
+                longest_dup = substring
+                break
+            seen[substring] = i
+        if longest_dup:
+            break
+
+    return longest_dup

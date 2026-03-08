@@ -1,0 +1,77 @@
+def longest_duplicate_substring(S):
+    class Node:
+        def __init__(self, suffix_link):
+            self.children = {}
+            self.suffix_link = suffix_link
+            self.count = 0
+
+    root = Node(None)
+
+    def update_counts(node):
+        if node is not None:
+            node.count += 1
+            for child in node.children.values():
+                update_counts(child)
+
+    def build_tree(S):
+        current = root
+        for i in range(len(S)):
+            current_char = S[i]
+            new_node = Node(current)
+            new_node.count = 1
+            current.children[current_char] = new_node
+
+            while True:
+                suffix_link = current.suffix_link
+                if current_char in suffix_link.children:
+                    current = suffix_link.children[current_char]
+                    break
+                elif suffix_link is None or suffix_link.children.get(current_char, None) is None:
+                    new_suffix_link_node = Node(suffix_link)
+                    new_suffix_link_node.count = 0
+                    current.suffix_link = new_suffix_link_node
+                    new_suffix_link_node.children[current_char] = new_node
+                    break
+                else:
+                    current = suffix_link.children[current_char]
+                    continue
+
+        update_counts(root)
+        return root
+
+    def find_longest_repeated_substring(root):
+        max_len = 0
+        max_node = None
+        for node in root.children.values():
+            update_counts(node)
+            if node.count >= 2:
+                if node.count > max_len:
+                    max_len = node.count
+                    max_node = node
+            current_node = node.suffix_link
+            while current_node is not None:
+                if current_node.count >= 2:
+                    if node.count > max_len:
+                        max_len = node.count
+                        max_node = node
+                current_node = current_node.suffix_link
+
+        current_node = max_node
+        while current_node is not None:
+            if current_node.count >= 2:
+                substring = ""
+                parent_node = current_node
+                while True:
+                    if parent_node.children:
+                        substring += parent_node.children[parent_node.children.keys()[0]][0]
+                        parent_node = parent_node.children[parent_node.children.keys()[0]]
+                    else:
+                        break
+                return substring
+            current_node = current_node.suffix_link
+
+    root = build_tree(S)
+    return find_longest_repeated_substring(root)
+
+# Example usage
+print(longest_duplicate_substring("banana"))  # Output: "ana"
